@@ -1,0 +1,419 @@
+{
+  "uid": "ev-telemetry",
+  "title": "EV Telemetry",
+  "tags": ["telemetry", "ev"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Motor Metrics (RPM / Current / Voltage / Torque)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 10 },
+      "datasource": { "type": "postgres", "uid": "ev_postgres" },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "rpm" },
+            "properties": [
+              { "id": "displayName", "value": "RPM" },
+              { "id": "unit", "value": "rotrpm" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "amp" },
+            "properties": [
+              { "id": "displayName", "value": "Current (A)" },
+              { "id": "unit", "value": "amp" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "volt" },
+            "properties": [
+              { "id": "displayName", "value": "Voltage (V)" },
+              { "id": "unit", "value": "volt" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "trq" },
+            "properties": [
+              { "id": "displayName", "value": "Torque (Nm)" },
+              { "id": "unit", "value": "forceNm" }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "ev_postgres" },
+          "rawQuery": true,
+          "format": "time_series",
+          "rawSql": "SELECT timestamp AS \"time\", rpm, amp, volt, trq FROM telemetry_records WHERE $__timeFilter(timestamp) ORDER BY timestamp"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Temperatures",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 8 },
+      "datasource": { "type": "postgres", "uid": "ev_postgres" },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "celsius",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 70 },
+              { "color": "red", "value": 90 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "igbtC" },
+            "properties": [{ "id": "displayName", "value": "IGBT Temp" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "motC" },
+            "properties": [{ "id": "displayName", "value": "Motor Temp" }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "ev_postgres" },
+          "rawQuery": true,
+          "format": "time_series",
+          "rawSql": "SELECT timestamp AS \"time\", \"igbtC\", \"motC\" FROM telemetry_records WHERE $__timeFilter(timestamp) ORDER BY timestamp"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Status Codes (Mode / Error / Warning)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 10, "w": 12, "h": 8 },
+      "datasource": { "type": "postgres", "uid": "ev_postgres" },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short",
+          "decimals": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 20,
+            "spanNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "mode" },
+            "properties": [{ "id": "displayName", "value": "Mode" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "err" },
+            "properties": [
+              { "id": "displayName", "value": "Error Code" },
+              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "warn" },
+            "properties": [
+              { "id": "displayName", "value": "Warning Code" },
+              { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "ev_postgres" },
+          "rawQuery": true,
+          "format": "time_series",
+          "rawSql": "SELECT timestamp AS \"time\", mode, err, warn FROM telemetry_records WHERE $__timeFilter(timestamp) ORDER BY timestamp"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Regen",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 18, "w": 4, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "ev_postgres" },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "OFF", "color": "semi-dark-gray" }, "1": { "text": "ON", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "semi-dark-gray", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "ev_postgres" },
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT \"lRegen\" FROM telemetry_records ORDER BY timestamp DESC LIMIT 1"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Error",
+      "type": "stat",
+      "gridPos": { "x": 4, "y": 18, "w": 4, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "ev_postgres" },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "OK", "color": "green" }, "1": { "text": "ERROR", "color": "red" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "ev_postgres" },
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT \"lErr\" FROM telemetry_records ORDER BY timestamp DESC LIMIT 1"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Warning",
+      "type": "stat",
+      "gridPos": { "x": 8, "y": 18, "w": 4, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "ev_postgres" },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "OK", "color": "green" }, "1": { "text": "WARN", "color": "orange" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "ev_postgres" },
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT \"lWarn\" FROM telemetry_records ORDER BY timestamp DESC LIMIT 1"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "OK",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 18, "w": 4, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "ev_postgres" },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "OFF", "color": "semi-dark-gray" }, "1": { "text": "OK", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "semi-dark-gray", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "ev_postgres" },
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT \"lOk\" FROM telemetry_records ORDER BY timestamp DESC LIMIT 1"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Pump",
+      "type": "stat",
+      "gridPos": { "x": 16, "y": 18, "w": 4, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "ev_postgres" },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "OFF", "color": "semi-dark-gray" }, "1": { "text": "ON", "color": "blue" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "semi-dark-gray", "value": null },
+              { "color": "blue", "value": 1 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "ev_postgres" },
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT \"lPump\" FROM telemetry_records ORDER BY timestamp DESC LIMIT 1"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Drive Enable",
+      "type": "stat",
+      "gridPos": { "x": 20, "y": 18, "w": 4, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "ev_postgres" },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DISABLED", "color": "semi-dark-gray" }, "1": { "text": "ENABLED", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "semi-dark-gray", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "ev_postgres" },
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT \"driveEna\" FROM telemetry_records ORDER BY timestamp DESC LIMIT 1"
+        }
+      ]
+    }
+  ]
+}
