@@ -1,0 +1,23 @@
+-- CreateTable
+CREATE TABLE "telemetry_records" (
+    "id" SERIAL NOT NULL,
+    "timestamp" TIMESTAMP(3) NOT NULL,
+    "rpm" DOUBLE PRECISION NOT NULL,
+    "amp" DOUBLE PRECISION NOT NULL,
+    "volt" DOUBLE PRECISION NOT NULL,
+    "trq" DOUBLE PRECISION NOT NULL,
+    "mode" INTEGER NOT NULL,
+    "err" INTEGER NOT NULL,
+    "warn" INTEGER NOT NULL,
+    "igbtC" DOUBLE PRECISION NOT NULL,
+    "motC" DOUBLE PRECISION NOT NULL,
+    "lRegen" INTEGER NOT NULL,
+    "lErr" INTEGER NOT NULL,
+    "lWarn" INTEGER NOT NULL,
+    "lOk" INTEGER NOT NULL,
+    "lPump" INTEGER NOT NULL,
+    "driveEna" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "telemetry_records_pkey" PRIMARY KEY ("id")
+);

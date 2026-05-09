@@ -1,0 +1,68 @@
+services:
+
+  postgresdb:
+    container_name: telemetry_postgresdb
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-strongpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-ev}
+    ports:
+      - "5435:5432"
+    volumes:
+      - ev-data:/var/lib/postgresql/data
+    networks:
+      - telemetry-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    container_name: telemetry_grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_ADMIN_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/provisioning:/etc/grafana/provisioning
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    networks:
+      - telemetry-net
+
+  node-red:
+    container_name: telemetry_nodered
+    build:
+      context: ../services/node-red
+      dockerfile: Dockerfile
+    ports:
+      - "1880:1880"
+    environment:
+      TZ: Asia/Bangkok
+      DB_HOST: postgresdb
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-ev}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-strongpassword}
+    volumes:
+      - ../services/node-red:/data
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    networks:
+      - telemetry-net
+
+volumes:
+  ev-data:
+  grafana-data:
+
+networks:
+  telemetry-net:
+    driver: bridge

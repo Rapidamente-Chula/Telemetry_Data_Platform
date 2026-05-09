@@ -1,0 +1,21 @@
+{
+  "name": "telemetry-db",
+  "private": true,
+  "scripts": {
+    "migrate": "prisma migrate deploy",
+    "migrate:dev": "prisma migrate dev",
+    "generate": "prisma generate",
+    "studio": "prisma studio"
+  },
+  "devDependencies": {
+    "prisma": "^7.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@prisma/engines", "prisma"]
+  }
+}

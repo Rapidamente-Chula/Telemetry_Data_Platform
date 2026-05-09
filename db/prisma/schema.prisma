@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model TelemetryRecord {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime
+
+  // Motor metrics
+  rpm   Float
+  amp   Float
+  volt  Float
+  trq   Float
+
+  // Status / codes
+  mode Int
+  err  Int
+  warn Int
+
+  // Temperatures
+  igbtC Float
+  motC  Float
+
+  // Flags (0 = off, 1 = on)
+  lRegen   Int
+  lErr     Int
+  lWarn    Int
+  lOk      Int
+  lPump    Int
+  driveEna Int
+
+  createdAt DateTime @default(now())
+
+  @@map("telemetry_records")
+}
