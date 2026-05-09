@@ -14,6 +14,7 @@ services/node-red/.sessions*
 services/node-red/node_modules/
 services/node-red/flows_cred.json
 services/node-red/settings.js
+services/node-red/package.json
 services/node-red/lib/
 
 # Prisma
