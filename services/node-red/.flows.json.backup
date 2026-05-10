@@ -2454,7 +2454,7 @@
         "type": "function",
         "z": "74e9e1df8aa29fe1",
         "name": "แปลงเป็น csv เพื่อ save",
-        "func": "var d = msg.payload;\nvar timestamp = new Date().toISOString();\n\nmsg.params = [\n    timestamp,\n    d.rpm,\n    d.amp,\n    d.volt,\n    d.trq,\n    d.mode,\n    d.igbtC,\n    d.motC,\n    d.err,\n    d.warn,\n    d.L_REGEN,\n    d.L_ERR,\n    d.L_WARN,\n    d.L_OK,\n    d.L_PUMP,\n    d.drive_ena\n];\n\nreturn msg;",
+        "func": "var d = msg.payload;\nvar timestamp = new Date().toISOString();\n\nmsg.req.params = [\n    timestamp,\n    d.rpm,\n    d.amp,\n    d.volt,\n    d.trq,\n    d.mode,\n    d.igbtC,\n    d.motC,\n    d.err,\n    d.warn,\n    d.L_REGEN,\n    d.L_ERR,\n    d.L_WARN,\n    d.L_OK,\n    d.L_PUMP,\n    d.drive_ena\n];\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
